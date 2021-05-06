@@ -39,8 +39,9 @@ enable_raw_mode ()
 }
 
 static Janet
-fgetc_wrapped (int32_t argc, Janet *argv)
+wait_for_key_wrapped (int32_t argc, Janet *argv)
 {
+  enable_raw_mode ();
   int nread;
   char c;
 
@@ -49,16 +50,18 @@ fgetc_wrapped (int32_t argc, Janet *argv)
       if (nread == -1 && errno != EAGAIN) fprintf (stderr, "read");
     }
 
+  disable_raw_mode ();
+
   return janet_wrap_number (c);
 }
 
 static const JanetReg
 com_ahungry_io_cfuns[] = {
-  {"wait-for-key", fgetc_wrapped, "Get a single character as an int."},
+  {"wait-for-key", wait_for_key_wrapped, "Get a single character as an int."},
   {NULL,NULL,NULL}
 };
 
 JANET_MODULE_ENTRY (JanetTable *env) {
-  enable_raw_mode ();
+  //enable_raw_mode ();
   janet_cfuns (env, "com_ahungry_io", com_ahungry_io_cfuns);
 }
